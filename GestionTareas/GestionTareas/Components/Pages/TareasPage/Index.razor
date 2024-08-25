@@ -1,11 +1,49 @@
 ﻿@page "/Tarea/Index"
 
-@using GestionTarea.Models
-@using GestionTarea.Services
+@using GestionTareas.Models
+@using GestionTareas.Services
 
 @inject TareaService tareaService
 @inject NavigationManager navigationManager
 @rendermode InteractiveServer
+
+@*HTML*@
+
+<PageTitle>Index</PageTitle>
+<div class="container">
+    <div class="shadow-lg">
+        @*Header*@
+        <div class="card-header text-center">
+            <h3><strong>Listado de Tareas</strong></h3>
+        </div>
+        @*Body*@
+        <div class="card-body">
+            @*Tabla de la lista*@
+            <table class="table table-bordered text-center mt-4">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var tarea in ListaTareas){
+                        <tr>
+                            <td>@tarea.TareaId</td>
+                            <td>@tarea.Title</td>
+                            <td>@tarea.Description</td>
+                            <td>@tarea.Priority</td>
+                            <td>@tarea.Status</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 @code {
     public List<Tareas> ListaTareas { get; set; } = new List<Tareas>();
@@ -15,5 +53,19 @@
     }
 
     public void PantallaCrear() => navigationManager.NavigateTo("/Estudiante/Create");
+    
+    public void PantallaObservar(int id)
+    {
+        navigationManager.NavigateTo($"/Tarea/Details/{id}");
+    }
 
+    public void PantallaEditar(int id)
+    {
+        navigationManager.NavigateTo($"/Tarea/Edit/{id}");
+    }
+
+    public void PantallaEliminar(int id)
+    {
+        navigationManager.NavigateTo($"/Tarea/Delete/{id}");
+    }
 }
