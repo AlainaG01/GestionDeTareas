@@ -1,5 +1,6 @@
 using GestionTareas.Components;
 using GestionTareas.DAL;
+using GestionTareas.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,9 @@ builder.Services.AddRazorComponents()
 //Inyeccion del contexto
 var ConStr = builder.Configuration.GetConnectionString("ConStr");
 builder.Services.AddDbContext<Contexto>(o => o.UseSqlite(ConStr));
+
+//Inyeccion del servicio
+builder.Services.AddScoped<TareaService>();
 
 
 var app = builder.Build();
