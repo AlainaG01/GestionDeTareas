@@ -1,0 +1,19 @@
+﻿@page "/Tarea/Index"
+
+@using GestionTarea.Models
+@using GestionTarea.Services
+
+@inject TareaService tareaService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+@code {
+    public List<Tareas> ListaTareas { get; set; } = new List<Tareas>();
+
+    protected override async Task OnInitializedAsync(){
+        ListaTareas = await tareaService.Listar(e => e.TareaId > 0);
+    }
+
+    public void PantallaCrear() => navigationManager.NavigateTo("/Estudiante/Create");
+
+}
