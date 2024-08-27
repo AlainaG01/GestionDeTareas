@@ -1,0 +1,47 @@
+﻿@page "/Tarea/Details/{TareaId:int}"
+
+@inject TareaService tareaService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+@*HTML*@
+<PageTitle>Details</PageTitle>
+<div class="container">
+    <div class="shadow-lg">
+        @*header*@
+        <div class="card-header text-center">
+            <h3><strong>Detalles de la tarea</strong></h3>
+        </div>
+        @*body*@
+        <div class="card-body">
+            <ul class="mt-5"> 
+                <li><strong>Id</strong>@tarea.TareaId</li>
+                <li><strong>Title</strong>@tarea.Title</li>
+                <li><strong>Description</strong>@tarea.Description</li>
+                <li><strong>Priority</strong>@tarea.Priority</li>
+                <li><strong>Status</strong>@tarea.Status</li>
+            </ul>
+        </div>
+        @*footer*@
+        <div class="card-footer text-center">
+            <button type="button" class="btn btn-primary" @onclick="Volver">Volver</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int TareaId { get; set; }
+
+    public Tareas tarea { get; set; } = new Tareas();
+
+    protected override async Task OnInitializedAsync()
+    {
+        tarea = await tareaService.Buscar(TareaId);
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Tarea/Index");
+    }
+}
