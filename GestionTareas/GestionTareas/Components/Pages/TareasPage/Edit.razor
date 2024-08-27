@@ -1,0 +1,109 @@
+﻿@page "/Tarea/Edit/{TareaId:int}"
+
+@inject TareaService tareaService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+@*HTML*@
+<PageTitle>Edit</PageTitle>
+<EditForm Model="tarea" OnValidSubmit="Modificar">
+    <DataAnnotationsValidator />
+    @*formulario*@
+    <div class="container">
+        <div class="shadow-lg">
+            @*header*@
+            <div class="card-header text-center">
+                <h3><strong>Modificar Tarea</strong></h3>
+            </div>
+            @*Body*@
+            <div class="card-body">
+                <div class="row">
+                    @*Id*@
+                    <div class="col-1">
+                        <label class="form-label"><strong>TareaId</strong></label>
+                        <InputNumber class="form-control" @bind-Value="tarea.TareaId" readonly></InputNumber>
+                    </div>
+                    @*title*@
+                    <div class="col-3 ms-2">
+                        <label class="form-label"><strong>Title</strong></label>
+                        <InputText class="form-control" @bind-Value="tarea.Title"></InputText>
+                        <ValidationMessage For="(()=> tarea.Title)" />
+                    </div>
+                    @*description*@
+                    <div class="col-3 ms-2">
+                        <label class="form-label"><strong>Description</strong></label>
+                        <InputText class="form-control" @bind-Value="tarea.Description"></InputText>
+                        <ValidationMessage For="(()=> tarea.Description)" />
+                    </div>
+                    @*prioridades*@
+                    <div class="col-3 ms-2">
+                        <label class="form-label"><strong>Priority</strong></label>
+                        <InputSelect class="form-select" @bind-Value="tarea.Priority">
+                            <option value="" selected disabled>Elija una opci&oacute;n</option>
+                            <option value="Muy importante">Muy importante</option>
+                            <option value="Importante">Importante</option>
+                            <option value="Poco importante">Poco importante</option>
+                        </InputSelect>
+                    </div>
+                    @*estado*@
+                    <div class="col-3 ms-2">
+                        <label class="form-label"><strong>Status</strong></label>
+                        <InputSelect class="form-select" @bind-Value="tarea.Status">
+                            <option value="" selected disabled>Elija una opci&oacute;n</option>
+                            <option value="Planificado">Planificado</option>
+                            <option value="En proceso">En proceso</option>
+                            <option value="Listo">Listo</option>
+                        </InputSelect>
+                    </div>
+                </div>
+            </div>
+            @*footer*@
+            <div class="card-footer text-center">
+                <button type="button" class="btn btn-primary" @onclick="Volver">Volver</button>
+                <button type="submit" class="btn btn-success" @onclick="Modificar">Modificar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@Mensaje
+
+@code {
+    [Parameter]
+    public int TareaId { get; set; }
+
+    public Tareas tarea { get; set; } = new Tareas();
+    public string Mensaje { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tarea = await tareaService.Buscar(TareaId);
+    }
+
+    private async Task<bool> Validar()
+    {
+        var existe = await tareaService.ExisteTarea(tarea.TareaId, tarea.Title, tarea.Description);
+        return existe;
+    }
+
+    public async Task Modificar()
+    {
+        if (await Validar())
+        {
+            Mensaje = "Ya existe una tarea con este t&iacute;tulo o esta descripci&oacute;n";
+            return;
+        }
+
+        var crear = await tareaService.Guardar(tarea);
+
+        if (crear)
+            Mensaje = "Se ha modificado correctamente esta tarea";
+        else
+            Mensaje = "No se ha modificado correctamente esta tarea";
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Tarea/Index");
+    }
+}
