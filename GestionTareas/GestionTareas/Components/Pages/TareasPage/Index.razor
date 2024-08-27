@@ -18,6 +18,45 @@
         </div>
         @*Body*@
         <div class="card-body">
+            @*labels*@
+            <div class="row">
+                @*Filtrar por*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>Filtrar por</strong></label>
+                </div>
+                @*ValorFiltro*@
+                <div class="col-4">
+                    <label class="col-form-label"><strong>B&uacute;squeda</strong></label>
+                </div>
+            </div>
+            @*Inputs y botones*@
+            <div class="row align-items-center">
+                @*filtro*@
+                <div class="col-3">
+                    <InputSelect class="form-select" @bind-Value="Filtro">
+                        <option value="" selected disabled>Elija una opci&oacute;n</option>
+                        <option value="Id">Id</option>
+                        <option value="Title">Title</option>
+                        <option value="Priority">Priority</option>
+                    </InputSelect>
+                </div>
+                @*Busqueda*@
+                <div class="col-4">
+                    <div class="input-group">
+                        <input class="form-control" @bind="ValorFiltro" placeholder="Buscar" />
+                        <button type="button" class="btn btn-outline-primary bi bi-search" @onclick="Buscar"></button>
+                    </div>
+                </div>
+                @*Restablecer*@
+                <div class="col-auto">
+                    <button type="button" class="btn btn-outline-secondary bi bi-arrow-clockwise" @onclick="Restablecer"></button>
+                </div>
+                @*crear*@
+                <div class="col-auto">
+                    <button type="button" class="btn btn-primary" @onclick="PantallaCrear"> Crear</button>
+                </div>
+            </div>
+            
             @*Tabla de la lista*@
             <table class="table table-bordered text-center mt-4">
                 <thead>
@@ -27,6 +66,9 @@
                         <th>Description</th>
                         <th>Priority</th>
                         <th>Status</th>
+                        <th>Observar</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,6 +79,20 @@
                             <td>@tarea.Description</td>
                             <td>@tarea.Priority</td>
                             <td>@tarea.Status</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-primary bi bi-eye"
+                                        @onclick="()=> PantallaObservar(tarea.TareaId)"></button>
+                            </td>
+
+                            <td>
+                                <button type="button" class="btn btn-outline-warning bi bi-pencil"
+                                        @onclick="()=> PantallaEditar(tarea.TareaId)"></button>
+                            </td>
+
+                            <td>
+                                <button type="button" class="btn btn-outline-danger bi bi-trash"
+                                        @onclick="()=> PantallaEliminar(tarea.TareaId)"></button>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -48,12 +104,15 @@
 @code {
     public List<Tareas> ListaTareas { get; set; } = new List<Tareas>();
 
+    public string Filtro { get; set; } = string.Empty;
+    public string ValorFiltro { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync(){
         ListaTareas = await tareaService.Listar(e => e.TareaId > 0);
     }
 
-    public void PantallaCrear() => navigationManager.NavigateTo("/Estudiante/Create");
-    
+    public void PantallaCrear() => navigationManager.NavigateTo("/Tarea/Create");
+
     public void PantallaObservar(int id)
     {
         navigationManager.NavigateTo($"/Tarea/Details/{id}");
@@ -67,5 +126,27 @@
     public void PantallaEliminar(int id)
     {
         navigationManager.NavigateTo($"/Tarea/Delete/{id}");
+    }
+
+    private async Task Buscar()
+    {
+        if (ValorFiltro.Trim() != "")
+        {
+            if (Filtro == "Id" && int.TryParse(ValorFiltro, out int tareaId))
+                ListaTareas = await tareaService.Listar(e => e.TareaId == tareaId);
+            else if (Filtro == "Title")
+                ListaTareas = await tareaService.Listar(e => e.Title.ToLower().Contains(ValorFiltro.ToLower()));
+            else if (Filtro == "Priority")
+                ListaTareas = await tareaService.Listar(e => e.Priority.ToLower().Contains(ValorFiltro.ToLower()));
+        }
+        else
+            ListaTareas = await tareaService.Listar(e => e.TareaId > 0);
+    }
+
+    private async Task Restablecer()
+    {
+        ListaTareas = await tareaService.Listar(e => e.TareaId > 0);
+        Filtro = string.Empty;
+        ValorFiltro = string.Empty;
     }
 }
