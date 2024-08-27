@@ -1,0 +1,67 @@
+﻿@page "/Tarea/Delete/{TareaId:int}"
+
+@inject TareaService tareaService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+@*HTML*@
+<PageTitle>Delete</PageTitle>
+<div class="container">
+    <div class="shadow-lg">
+        @*header*@
+        <div class="text-center">
+            <h3><strong>Eliminar Tarea</strong></h3>
+        </div>
+        @*body*@
+        <div class="card-body">
+            <div class="text-center">
+                <h4><strong>¿Desea eliminar este estudiante?</strong></h4>
+            </div>
+            <ul>
+                <li><strong>Id</strong>@tarea.TareaId</li>
+                <li><strong>Title</strong>@tarea.Title</li>
+                <li><strong>Description</strong>@tarea.Description</li>
+                <li><strong>Priority</strong>@tarea.Priority</li>
+                <li><strong>Status</strong>@tarea.Status</li>
+            </ul>
+        </div>
+    </div>
+    @*footer*@
+    <div class="card-footer text-center">
+        <button type="button" class="btn btn-primary" @onclick="Volver">Volver</button>
+        <button type="submit" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+    </div>
+</div>
+
+@Mensaje
+
+@code {
+    [Parameter]
+    public int TareaId { get; set; }
+
+    public Tareas tarea { get; set; } = new Tareas();
+    public string Mensaje { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tarea = await tareaService.Buscar(TareaId);
+    }
+
+    private async Task Eliminar()
+    {
+        var eliminado = await tareaService.Eliminar(tarea);
+        if (eliminado)
+        {
+            Mensaje = $"La tarea {tarea.Title} ha sido eliminada correctamente";
+        }
+        else
+        {
+            Mensaje = "No se ha podido eliminar la tarea correctamente";
+        }
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Tarea/Index");
+    }
+}
