@@ -1,0 +1,105 @@
+﻿@page "/Tarea/Create"
+
+@inject TareaService tareaService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+@*HTML*@
+<PageTitle>Create</PageTitle>
+<EditForm Model="Tareas" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    @*Formulario*@
+    <div class="container">
+        <div class="shadow-lg">
+            @*Header*@
+            <div class="card-header">
+                <h3>Crear una Tarea</h3>
+            </div>
+            @*Body*@
+            <div class="card-body">
+                <div class="row">
+                    @*Id*@
+                    <div class="col-1">
+                        <label class="form-label"><strong>TareaID</strong></label>
+                        <InputNumber class="form-control" @bind-Value="Tareas.TareaId" readonly></InputNumber>
+                    </div>
+                    @*titulo*@
+                    <div class="col-3 ms-5">
+                        <label class="form-label"><strong>Title</strong></label>
+                        <InputText class="form-control" @bind-Value="Tareas.Title"></InputText>
+                        <ValidationMessage For="(()=> Tareas.Title)"/>
+                    </div>
+                    @*descriccion*@
+                    <div class="col-5 ms-5">
+                        <label class="form-label"><strong>Description</strong></label>
+                        <InputText class="form-control" @bind-Value="Tareas.Description"></InputText>
+                        <ValidationMessage For="(()=> Tareas.Description)"/>
+                    </div>
+                    @*prioridades*@
+                    <div class="col-3 ms-5">
+                        <label class="form-label"><strong>Priority</strong></label>
+                        <InputSelect class="form-select" @bind-Value="Tareas.Priority">
+                            <option value="" selected disabled>Elija una opci&oacute;n</option>
+                            <option value="Muy importante">Muy importante</option>
+                            <option value="Importante">Importante</option>
+                            <option value="Poco importante">Poco importante</option>
+                        </InputSelect>
+                    </div>
+                    @*estado*@
+                    <div class="col-3 ms-5">
+                        <label class="form-label"><strong>Status</strong></label>
+                        <InputSelect class="form-select" @bind-Value="Tareas.Status">
+                            <option value="" selected disabled>Elija una opci&oacute;n</option>
+                            <option value="Planificado">Planificado</option>
+                            <option value="En proceso">En proceso</option>
+                            <option value="Listo">Listo</option>
+                        </InputSelect>
+                    </div>
+                </div>
+            </div>
+            @*Footer*@
+            <div class="card-footer">
+                <button type="button" class="btn btn-primary" @onclick="Volver">Volver</button>
+                <button type="button" class="btn btn-success" @onclick="Guardar">Guardar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@Mensaje
+
+@code {
+    public Tareas Tareas { get; set; } = new Tareas();
+
+    public string Mensaje { get; set; } = string.Empty;
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Tarea/Index");
+    }
+
+    private async Task<bool> Validar()
+    {
+        var existe = await tareaService.ExisteTarea(Tareas.TareaId, Tareas.Title, Tareas.Description);
+        return existe;
+    }
+
+    private async Task Guardar()
+    {
+        if(await Validar())
+        {
+            Mensaje = "Ya existe una tarea con este titulo o esta descripcion";
+            return;
+        }
+
+        var crear = await tareaService.Guardar(Tareas);
+        if (crear)
+        {
+            Mensaje = "Se ha creado correctamente la tarea";
+        } 
+        else
+        {
+            Mensaje = "No se ha creado correctamente";
+        }
+    }
+}
